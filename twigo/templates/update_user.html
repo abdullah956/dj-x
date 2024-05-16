@@ -6,7 +6,7 @@
 <h1>Update User</h1>
 <br/>
 
-<form method="POST" action="" enctype="multipart/form-data">
+<form method="POST" action="{% url 'update_user' %}" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ user_form.as_p }}
 	<br/>

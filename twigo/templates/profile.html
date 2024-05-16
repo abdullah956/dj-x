@@ -66,7 +66,8 @@
 				<br/><br/><br/>
 
 				{% if profile.profile_image %}
-				<img src="{{ profile.profile_image.url }}" class="rounded-circle">
+				{% comment %} <img src="{{ profile.profile_image.url }}" class="rounded-circle"> {% endcomment %}
+				<img src="{{ profile.profile_image.url }}" width=50 height=50 class="rounded-circle" alt="{{ profile.user.username }}">
 				<br/><br/>
 				{% endif %}
 

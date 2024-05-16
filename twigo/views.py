@@ -165,6 +165,7 @@ def register_user(request):
 	return render(request, "register.html", {'form':form})
 
 
+
 def update_user(request):
 	if request.user.is_authenticated:
 		current_user = User.objects.get(id=request.user.id)
