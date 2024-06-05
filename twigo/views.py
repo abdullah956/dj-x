@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Profile, Meep
-from .forms import MeepForm, SignUpForm, ProfilePicForm
+from .forms import MeepForm, SignUpForm, ProfilePicForm , ChangePasswordForm , UpdateUserForm
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
 
@@ -171,17 +170,18 @@ def update_user(request):
 		current_user = User.objects.get(id=request.user.id)
 		profile_user = Profile.objects.get(user__id=request.user.id)
 		# Get Forms
-		user_form = SignUpForm(request.POST or None, request.FILES or None, instance=current_user)
+		#user_form = SignUpForm(request.POST or None, request.FILES or None, instance=current_user)
 		profile_form = ProfilePicForm(request.POST or None, request.FILES or None, instance=profile_user)
-		if user_form.is_valid() and profile_form.is_valid():
-			user_form.save()
+		# if user_form.is_valid() and profile_form.is_valid():
+		if profile_form.is_valid():
+			#user_form.save()
 			profile_form.save()
 
 			login(request, current_user)
 			messages.success(request, ("Your Profile Has Been Updated!"))
 			return redirect('home')
 
-		return render(request, "update_user.html", {'user_form':user_form, 'profile_form':profile_form})
+		return render(request, "update_user.html", {'profile_form':profile_form})
 	else:
 		messages.success(request, ("You Must Be Logged In To View That Page..."))
 		return redirect('home')
@@ -271,3 +271,44 @@ def search(request):
 		return render(request, 'search.html', {'search':search, 'searched':searched})
 	else:
 		return render(request, 'search.html', {})
+	
+
+
+def update_user_info(request) :
+	if request.user.is_authenticated:
+		current_user = User.objects.get(id=request.user.id)
+		user_form = UpdateUserForm(request.POST or None, instance=current_user)
+
+		if user_form.is_valid():
+			user_form.save()
+
+			login(request, current_user)
+			messages.success(request, "User Has Been Updated.")
+			return redirect('home')
+		return render(request, "update_user_info.html", {'user_form':user_form})
+	else:
+		messages.success(request, "You Must Be Logged In To Access That Page.")
+		return redirect('home')
+	
+def update_password(request) :
+	if request.user.is_authenticated:
+		current_user = request.user
+		# Did they fill out the form
+		if request.method  == 'POST':
+			form = ChangePasswordForm(current_user, request.POST)
+			# Is the form valid
+			if form.is_valid():
+				form.save()
+				messages.success(request, "Your Password Has Been Updated.")
+				login(request, current_user)
+				return redirect('home')
+			else:
+				for error in list(form.errors.values()):
+					messages.error(request, error)
+					return redirect('update_password')
+		else:
+			form = ChangePasswordForm(current_user)
+			return render(request, "update_password.html", {'form':form})
+	else:
+		messages.success(request, "You Must Be Logged In To View That Page.")
+		return redirect('home')
